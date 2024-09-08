@@ -32,20 +32,40 @@ export default function HomePage() {
         well-being.
       </Paragraph>
 
-      <div className="sp-embed-player" data-id="cZQjiqVRk8V">
-        <script src="https://go.screenpal.com/player/appearance/cZQjiqVRk8V"></script>
-        <iframe
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          scrolling="no"
-          src="https://go.screenpal.com/player/cZQjiqVRk8V?width=100%&height=100%&ff=1&title=0"
-          allowFullScreen
-        ></iframe>
+      <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+        <video
+          autoPlay
+          loop
+          muted
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        >
+          <source
+            src="https://go.screenpal.com/player/cZQjiqVRk8V"
+            type="video/mp4"
+          />
+          Your browser does not support the video tag.
+        </video>
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'white',
+            zIndex: 1,
+          }}
+        >
+          <Title level={1} style={{ color: 'white' }}>
+            Life isn't about finding yourself, Life is about creating yourself
+          </Title>
+        </div>
       </div>
-      <Paragraph>
-        "Life isn't about finding yourself, Life is about creating yourself"
-      </Paragraph>
 
       <Title level={2}>Wellness Tips</Title>
       <Row gutter={[16, 16]}>
