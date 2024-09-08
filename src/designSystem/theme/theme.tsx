@@ -9,13 +9,14 @@ export const Theme = {
   algorithm: theme.darkAlgorithm,
   token: {
     // Colors
-    colorPrimary: '#00a1ec',
+    colorPrimary: 'white',
     colorError: '#ff4d4f',
-    colorInfo: '#1677ff',
+    colorInfo: 'white',
     colorSuccess: '#52c41a',
     colorWarning: '#faad14',
     colorTextBase: 'white',
-    colorLink: '#00a1ec',
+    colorLink: 'white',
+
     colorBgBase: 'black',
     colorBgContainer: 'black',
     colorBorder: '#3f3f45',
@@ -79,6 +80,7 @@ export const Theme = {
       colorTextLightSolid: 'black',
       primaryColor: 'black',
       fontWeight: 500,
+      color: 'black', // Added to ensure contrast with white background
     },
   },
 }
