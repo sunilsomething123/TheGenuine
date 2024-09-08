@@ -1,0 +1,12 @@
+
+
+model WellnessTip {
+
+    id                String        @id @default(uuid())  
+    tip              String          
+    category    String          
+
+dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

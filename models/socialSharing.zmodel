@@ -1,0 +1,12 @@
+
+
+model SocialSharing {
+
+    id                String        @id @default(uuid())  
+    platform    String          
+    url              String          
+
+dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

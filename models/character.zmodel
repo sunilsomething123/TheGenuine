@@ -1,0 +1,13 @@
+
+
+model Character {
+
+    id                String        @id @default(uuid())  
+    name            String          
+    description  String?          
+    videoUrl    String?          
+
+dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}
