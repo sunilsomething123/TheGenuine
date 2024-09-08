@@ -20,9 +20,9 @@ export default function HomePage() {
   const { enqueueSnackbar } = useSnackbar()
 
   const { data: wellnessTips, isLoading: isLoadingTips } =
-    Api.wellnessTip.findMany.useQuery({})
+    Api.wellnessTip.findMany.useQuery({ take: 3 })
   const { data: recommendations, isLoading: isLoadingRecommendations } =
-    Api.recommendation.findMany.useQuery({ include: { user: true } })
+    Api.recommendation.findMany.useQuery({ take: 3, include: { user: true } })
 
   return (
     <PageLayout layout="narrow">
@@ -68,43 +68,47 @@ export default function HomePage() {
       </div>
 
       <Title level={2}>Wellness Tips</Title>
-      <Row gutter={[16, 16]}>
-        {wellnessTips?.map((tip: Prisma.WellnessTipGetPayload<{}>) => (
-          <Col span={8} key={tip.id}>
-            <Card title={tip.category}>
-              <Text>{tip.tip}</Text>
-            </Card>
-          </Col>
-        ))}
+      <Row gutter={[16, 16]} justify="center">
+        {wellnessTips
+          ?.slice(0, 3)
+          .map((tip: Prisma.WellnessTipGetPayload<{}>) => (
+            <Col span={8} key={tip.id}>
+              <Card title={tip.category}>
+                <Text>{tip.tip}</Text>
+              </Card>
+            </Col>
+          ))}
       </Row>
 
       <Title level={2}>Song Recommendations</Title>
-      <Row gutter={[16, 16]}>
-        {recommendations?.map(
-          (
-            rec: Prisma.RecommendationGetPayload<{ include: { user: true } }>,
-          ) => (
-            <Col span={8} key={rec.id}>
-              <Card
-                cover={<img alt={rec.title} src={rec.imageUrl} />}
-                actions={[
-                  <Button
-                    type="primary"
-                    icon={<PlayCircleOutlined />}
-                    onClick={() => window.open(rec.description, '_blank')}
-                  >
-                    Listen
-                  </Button>,
-                ]}
-              >
-                <Card.Meta
-                  title={rec.title}
-                  description={`Recommended by ${rec.user?.name}`}
-                />
-              </Card>
-            </Col>
-          ),
-        )}
+      <Row gutter={[16, 16]} justify="center">
+        {recommendations
+          ?.slice(0, 3)
+          .map(
+            (
+              rec: Prisma.RecommendationGetPayload<{ include: { user: true } }>,
+            ) => (
+              <Col span={8} key={rec.id}>
+                <Card
+                  cover={<img alt={rec.title} src={rec.imageUrl} />}
+                  actions={[
+                    <Button
+                      type="primary"
+                      icon={<PlayCircleOutlined />}
+                      onClick={() => window.open(rec.description, '_blank')}
+                    >
+                      Listen
+                    </Button>,
+                  ]}
+                >
+                  <Card.Meta
+                    title={rec.title}
+                    description={`Recommended by ${rec.user?.name}`}
+                  />
+                </Card>
+              </Col>
+            ),
+          )}
       </Row>
 
       <Title level={2}>Introduction to Powerhouse</Title>
