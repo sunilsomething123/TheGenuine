@@ -1,0 +1,12 @@
+import './user.zmodel'
+
+model Playlist {
+  id         String   @id @default(cuid())
+  name       String
+  coverImage String?
+  songs      String[]
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@allow("all", true)
+}

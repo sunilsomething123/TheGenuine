@@ -15,8 +15,16 @@ import {
   Col,
   Card,
   Space,
+  Modal,
+  Upload,
 } from 'antd'
-import { SmileOutlined, MehOutlined, FrownOutlined } from '@ant-design/icons'
+import {
+  SmileOutlined,
+  MehOutlined,
+  FrownOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from '@ant-design/icons'
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select
 const { TextArea } = Input
@@ -46,6 +54,13 @@ export default function PowerhousePage() {
   const [song, setSong] = useState<string>('')
   const [wellnessTip, setWellnessTip] = useState<string>('')
   const [mood, setMood] = useState<string>('neutral')
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
+  const [imageUrl, setImageUrl] = useState<string>('')
+  const [savedSongs, setSavedSongs] = useState<string[]>([])
+  const [recommendedSongs, setRecommendedSongs] = useState<string[]>([])
+  const [currentPlaylist, setCurrentPlaylist] = useState<string[]>([])
+
+  const [form] = Form.useForm()
 
   const {
     data: userMoodGraphs,
@@ -72,24 +87,62 @@ export default function PowerhousePage() {
     enqueueSnackbar('Note saved successfully!', { variant: 'success' })
   }
 
-  const handleAddSong = () => {
-    if (playlistName && song) {
-      const updatedPlaylists = playlists.map(playlist =>
-        playlist.name === playlistName
-          ? { ...playlist, songs: [...playlist.songs, song] }
-          : playlist,
-      )
-      setPlaylists(updatedPlaylists)
-      setSong('')
+  const handleAddToPlaylist = (song: string) => {
+    setCurrentPlaylist([...currentPlaylist, song])
+  }
+
+  const handleSavePlaylist = async () => {
+    if (playlistName && currentPlaylist.length > 0) {
+      await createPlaylist({
+        where: { id: user?.id },
+        data: {
+          playlists: {
+            create: {
+              name: playlistName,
+              songs: currentPlaylist,
+              coverImage: imageUrl,
+            },
+          },
+        },
+      })
+      enqueueSnackbar('Playlist saved successfully!', { variant: 'success' })
+      setPlaylistName('')
+      setCurrentPlaylist([])
+      setImageUrl('')
     }
   }
 
-  const handleCreatePlaylist = () => {
-    if (playlistName) {
-      setPlaylists([...playlists, { name: playlistName, songs: [] }])
-      setPlaylistName('')
+  const handleModalOk = () => {
+    form.validateFields().then(values => {
+      setPlaylistName(values.playlistName)
+      setIsModalVisible(false)
+    })
+  }
+
+  const beforeUpload = (file: File) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+    if (!isJpgOrPng) {
+      enqueueSnackbar('You can only upload JPG/PNG file!', { variant: 'error' })
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2
+    if (!isLt2M) {
+      enqueueSnackbar('Image must smaller than 2MB!', { variant: 'error' })
+    }
+    return isJpgOrPng && isLt2M
+  }
+
+  const handleChange = (info: any) => {
+    if (info.file.status === 'done') {
+      setImageUrl(info.file.response.url)
     }
   }
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  )
 
   const handleWellnessTipShare = async () => {
     await createMoodGraph({
@@ -109,6 +162,17 @@ export default function PowerhousePage() {
     enqueueSnackbar('Wellness tip shared successfully!', { variant: 'success' })
     refetchMoodGraphs()
   }
+
+  useEffect(() => {
+    // Fetch saved songs and recommended songs
+    // This is a placeholder. Replace with actual API calls.
+    setSavedSongs(['Saved Song 1', 'Saved Song 2', 'Saved Song 3'])
+    setRecommendedSongs([
+      'Recommended Song 1',
+      'Recommended Song 2',
+      'Recommended Song 3',
+    ])
+  }, [])
 
   return (
     <PageLayout layout="narrow">
@@ -155,54 +219,106 @@ export default function PowerhousePage() {
         </Button>
       </Card>
 
-      <Card title="Spotify Playlists" style={{ marginTop: 20 }}>
-        <Input
-          value={playlistName}
-          onChange={e => setPlaylistName(e.target.value)}
-          placeholder="Playlist Name"
-        />
-        <Button
-          type="primary"
-          onClick={handleCreatePlaylist}
-          style={{ marginTop: 10 }}
-        >
-          Create Playlist
-        </Button>
-        <Select
-          value={playlistName}
-          style={{ width: 200, marginTop: 10 }}
-          onChange={value => setPlaylistName(value)}
-        >
-          {playlists.map(playlist => (
-            <Option key={playlist.name} value={playlist.name}>
-              {playlist.name}
-            </Option>
-          ))}
-        </Select>
-        <Input
-          value={song}
-          onChange={e => setSong(e.target.value)}
-          placeholder="Add Song"
-          style={{ marginTop: 10 }}
-        />
-        <Button
-          type="primary"
-          onClick={handleAddSong}
-          style={{ marginTop: 10 }}
-        >
-          Add Song
-        </Button>
-        <List
-          header={<div>Songs</div>}
-          bordered
-          dataSource={
-            playlists.find(playlist => playlist.name === playlistName)?.songs ||
-            []
-          }
-          renderItem={item => <List.Item>{item}</List.Item>}
-          style={{ marginTop: 20 }}
-        />
-      </Card>
+      <div style={{ aspectRatio: '16/9', marginTop: 20 }}>
+        <Row gutter={[16, 16]}>
+          <Col span={8}>
+            <Button
+              type="dashed"
+              icon={<PlusOutlined />}
+              onClick={() => setIsModalVisible(true)}
+              style={{ width: '100%', height: '100%' }}
+            >
+              Create Playlist
+            </Button>
+          </Col>
+          <Col span={16}>
+            <List
+              header={<div>Saved Songs</div>}
+              bordered
+              dataSource={savedSongs}
+              renderItem={item => (
+                <List.Item>
+                  <Typography.Text>{item}</Typography.Text>
+                  <Button onClick={() => handleAddToPlaylist(item)}>
+                    Add to Playlist
+                  </Button>
+                </List.Item>
+              )}
+            />
+          </Col>
+        </Row>
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col span={12}>
+            <Card title="Recommended Songs">
+              <List
+                dataSource={recommendedSongs}
+                renderItem={item => (
+                  <List.Item>
+                    <Typography.Text>{item}</Typography.Text>
+                    <Button onClick={() => handleAddToPlaylist(item)}>
+                      Add to Playlist
+                    </Button>
+                  </List.Item>
+                )}
+              />
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card title="Current Playlist">
+              <List
+                dataSource={currentPlaylist}
+                renderItem={item => (
+                  <List.Item>
+                    <Typography.Text>{item}</Typography.Text>
+                  </List.Item>
+                )}
+              />
+              <Button
+                type="primary"
+                onClick={handleSavePlaylist}
+                style={{ marginTop: 16 }}
+              >
+                Save Playlist
+              </Button>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+
+      <Modal
+        title="Create New Playlist"
+        visible={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="playlistName"
+            label="Playlist Name"
+            rules={[
+              { required: true, message: 'Please input the playlist name!' },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="coverImage" label="Cover Image">
+            <Upload
+              name="avatar"
+              listType="picture-card"
+              className="avatar-uploader"
+              showUploadList={false}
+              beforeUpload={beforeUpload}
+              onChange={handleChange}
+            >
+              {imageUrl ? (
+                <img src={imageUrl} alt="avatar" style={{ width: '100%' }} />
+              ) : (
+                uploadButton
+              )}
+            </Upload>
+          </Form.Item>
+        </Form>
+      </Modal>
 
       <Card title="Share Wellness Tip" style={{ marginTop: 20 }}>
         <TextArea

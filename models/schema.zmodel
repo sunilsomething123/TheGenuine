@@ -16,9 +16,12 @@ import "./recommendation.zmodel";
 
 import "./moodGraph.zmodel"; 
 
+import "./playlist.zmodel";
+
 generator client {
     provider = "prisma-client-js"
 }
+
 
 plugin prisma {
     provider = '@core/prisma'
