@@ -45,7 +45,7 @@ export default function HomePage() {
           }}
         >
           <source
-            src="https://go.screenpal.com/player/cZQjiqVRk8V"
+            src="https://sunilthanu789.wistia.com/medias/f9sli8xkfy?embedType=async&seo=true&videoFoam=true&videoWidth=640"
             type="video/mp4"
           />
           Your browser does not support the video tag.
