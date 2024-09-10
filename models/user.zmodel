@@ -1,7 +1,7 @@
 import "./account.zmodel";
 import "./session.zmodel";
 import "./role.zmodel";
-
+import './playlist.zmodel';
 import './recommendation.zmodel'
 
 import './moodGraph.zmodel'
@@ -29,6 +29,7 @@ model User {
 
 recommendations  Recommendation[]  @relation("user")  
         moodGraphs  MoodGraph[]  @relation("user")  
+playlists  Playlist[] @relation("user") 
 
 @@auth()
     @@allow("all", auth().id == this.id)
