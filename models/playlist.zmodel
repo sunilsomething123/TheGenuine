@@ -6,7 +6,7 @@ model Playlist {
   coverImage String?
   songs      String[]
   userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], name: "UserToPlaylists")
 
   @@allow("all", true)
 }
